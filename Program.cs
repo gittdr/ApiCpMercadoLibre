@@ -14,11 +14,18 @@ namespace ApiCpMercadoLibre
         {
             //string id = "4017611389022000";
             //string secret = "ZK5Iuxv7CSovbXwWKzoKQ3rjtZtbFq0o";
+            Program muobject = new Program();
+            muobject.GetToken();
 
+        }
+
+        public void GetToken()
+        {
+            //POST
             var client = new RestClient("https://api.mercadolibre.com/oauth/token");
             var request = new RestRequest(Method.POST);
             request.AddHeader("cache-control", "no-cache");
-            
+
             request.AddHeader("Content-Type", "application/json");
             var body = @"{
             " + "\n" +
@@ -30,8 +37,6 @@ namespace ApiCpMercadoLibre
             " + "\n" +
                         @"}";
             request.AddParameter("application/json", body, ParameterType.RequestBody);
-            //request.AddParameter("application/json", body, ParameterType.RequestBody);
-            //request.AddParameter("application/json", "grant_type=client_credentials&scope=all&client_id=" + id + "&client_secret=" + secret, ParameterType.RequestBody);
             RestResponse response = (RestResponse)client.Execute(request);
 
             dynamic resp = JObject.Parse(response.Content);
@@ -40,12 +45,25 @@ namespace ApiCpMercadoLibre
             string expires_in = resp.expires_in;
             string scope = resp.scope;
             string user_id = resp.user_id;
+            GetCountries(token);
+        }
 
-            client = new RestClient("https://xxx.xxx.com/services/api/x/users/v1/employees");
-            request = new RestRequest(Method.GET);
+        public void GetCountries(string token)
+        {
+            //var client = new RestClient("https://api.mercadolibre.com/routes/2259547528693863/carta-porte-details");
+            var client = new RestClient("https://api.mercadolibre.com/classified_locations/countries/" + "UY");
+            var request = new RestRequest(Method.GET);
             request.AddHeader("authorization", "Bearer " + token);
             request.AddHeader("cache-control", "no-cache");
-            response = (RestResponse)client.Execute(request);
+            RestResponse response = (RestResponse)client.Execute(request);
+            dynamic resp = JObject.Parse(response.Content);
+            string id = resp.id;
+            string name = resp.name;
+            dynamic geo_array = resp.geo_information;
+            dynamic locations = geo_array.location;
+            string latitud = locations.latitude;
+            //string 
+
         }
     }
 }
