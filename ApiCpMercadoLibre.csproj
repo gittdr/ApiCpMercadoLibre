@@ -53,6 +53,21 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Models\Address.cs" />
+    <Compile Include="Models\City.cs" />
+    <Compile Include="Models\Country.cs" />
+    <Compile Include="Models\Destination.cs" />
+    <Compile Include="Models\Dimensions.cs" />
+    <Compile Include="Models\Fiscal_Information.cs" />
+    <Compile Include="Models\Items.cs" />
+    <Compile Include="Models\MLMCartaPorte.cs" />
+    <Compile Include="Models\Municipality.cs" />
+    <Compile Include="Models\Neighborhood.cs" />
+    <Compile Include="Models\Origin.cs" />
+    <Compile Include="Models\Package.cs" />
+    <Compile Include="Models\Recipient.cs" />
+    <Compile Include="Models\Shipments.cs" />
+    <Compile Include="Models\State.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
