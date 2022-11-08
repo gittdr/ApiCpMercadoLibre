@@ -4,6 +4,8 @@ using Newtonsoft.Json.Linq;
 using RestSharp;
 using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -52,8 +54,11 @@ namespace ApiCpMercadoLibre
 
         public void GetDetails(string token)
         {
-            
-            var client = new RestClient("https://api.mercadolibre.com/shipping/fiscal/MLM/routes/2025473/middle-mile/facilities/MXXEM1/details");
+            //2036231 / MXXQR1
+            //2025473/middle-mile/facilities/MXXEM1
+            string Ai_orden = "123433";
+            string uwe = "KGM";
+            var client = new RestClient("https://api.mercadolibre.com/shipping/fiscal/MLM/routes/2036231/middle-mile/facilities/MXXEM1/details");
             //var client = new RestClient("https://api.mercadolibre.com/routes/2259547528693863/carta-porte-details");
             //var client = new RestClient("https://api.mercadolibre.com/classified_locations/countries/" + "UY");
             var request = new RestRequest(Method.GET);
@@ -125,22 +130,104 @@ namespace ApiCpMercadoLibre
                 RestResponse response2 = (RestResponse)client2.Execute(request2);
                 string respuesta = response2.Content;
                 var dataz = Newtonsoft.Json.JsonConvert.DeserializeObject<MLMCartaPorte>(respuesta);
-                dynamic elementos = dataz.package.items;
-                foreach (var ccitem in elementos)
+                if (dataz.status == 0)
                 {
-                    string cate = ccitem.category;
-                    string descript = ccitem.description;
-                    string unitcode = ccitem.unit_code;
-                    string quanti = ccitem.quantity;
-                    int heig = ccitem.dimensions.height;
-                    int widht = ccitem.dimensions.width;
-                    int length = ccitem.dimensions.length;
-                    int weight = ccitem.dimensions.weight;
+                    dynamic elementos = dataz.package.items;
+                    foreach (var ccitem in elementos)
+                    {
+                        string cate = ccitem.category;
+                        string descript = ccitem.description;
+                        string unitcode = ccitem.unit_code;
+                        string quanti = ccitem.quantity;
+                        int heig = ccitem.dimensions.height;
+                        int widht = ccitem.dimensions.width;
+                        int length = ccitem.dimensions.length;
+                        int weight = ccitem.dimensions.weight;
+
+                        //Aqui va el sp para insertar las mercancias
+                        InsertMerc(Ai_orden, id, cate, descript, weight, uwe, quanti, unitcode);
+
+                    }
+                    int total_items = dataz.package.total_items;
                 }
-                int total_items = dataz.package.total_items;
+                else
+                {
+                    InsertMercErrores(ship_id);
+                }
+                
 
             }
             //END SHIPMENTS
+        }
+        public void InsertMerc(string Ai_orden, string id, string cate, string descript, int weight, string uwe, string quanti, string unitcode)
+        {
+            string cadena = @"Data source=172.24.16.112; Initial Catalog=TMWSuite; User ID=sa; Password=tdr9312;Trusted_Connection=false;MultipleActiveResultSets=true";
+            //DataTable dataTable = new DataTable();
+
+            using (SqlConnection connection = new SqlConnection(cadena))
+            {
+
+                using (SqlCommand selectCommand = new SqlCommand("sp_Insert_Api_MercadoL_JC", connection))
+                {
+
+                    selectCommand.CommandType = CommandType.StoredProcedure;
+                    selectCommand.CommandTimeout = 1000;
+                    selectCommand.Parameters.AddWithValue("@Ai_orden", Ai_orden);
+                    selectCommand.Parameters.AddWithValue("@id", id);
+                    selectCommand.Parameters.AddWithValue("@cate", cate);
+                    selectCommand.Parameters.AddWithValue("@descript", descript);
+                    selectCommand.Parameters.AddWithValue("@weight", weight);
+                    selectCommand.Parameters.AddWithValue("@uwe", uwe);
+                    selectCommand.Parameters.AddWithValue("@quanti", quanti);
+                    selectCommand.Parameters.AddWithValue("@unitcode", unitcode);
+
+                    try
+                    {
+                        connection.Open();
+                        selectCommand.ExecuteNonQuery();
+                    }
+                    catch (Exception ex)
+                    {
+                        string message = ex.Message;
+                    }
+                    finally
+                    {
+                        connection.Close();
+                    }
+                }
+            }
+
+        }
+        public void InsertMercErrores(string ship_id)
+        {
+            string cadena = @"Data source=172.24.16.112; Initial Catalog=TMWSuite; User ID=sa; Password=tdr9312;Trusted_Connection=false;MultipleActiveResultSets=true";
+            //DataTable dataTable = new DataTable();
+
+            using (SqlConnection connection = new SqlConnection(cadena))
+            {
+
+                using (SqlCommand selectCommand = new SqlCommand("sp_Insert_Api_MercadoL_Errores_JC", connection))
+                {
+
+                    selectCommand.CommandType = CommandType.StoredProcedure;
+                    selectCommand.CommandTimeout = 1000;
+                    selectCommand.Parameters.AddWithValue("@ship_id", ship_id);
+                    try
+                    {
+                        connection.Open();
+                        selectCommand.ExecuteNonQuery();
+                    }
+                    catch (Exception ex)
+                    {
+                        string message = ex.Message;
+                    }
+                    finally
+                    {
+                        connection.Close();
+                    }
+                }
+            }
+
         }
     }
 }

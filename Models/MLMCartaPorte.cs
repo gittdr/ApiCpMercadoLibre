@@ -10,6 +10,7 @@ namespace ApiCpMercadoLibre.Models
     {
         public string id { get; set; }
         public string cost { get; set; }
+        public int status { get; set; }
         public Recipient recipient { get; set; }
         public Origin origin { get; set; }
         public Destination destination { get; set; }
