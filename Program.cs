@@ -56,9 +56,10 @@ namespace ApiCpMercadoLibre
         {
             //2036231 / MXXQR1
             //2025473/middle-mile/facilities/MXXEM1
-            string Ai_orden = "123433";
+            //2036355/MXXEM1
+            string Ai_orden = "123434";
             string uwe = "KGM";
-            var client = new RestClient("https://api.mercadolibre.com/shipping/fiscal/MLM/routes/2036231/middle-mile/facilities/MXXEM1/details");
+            var client = new RestClient("https://api.mercadolibre.com/shipping/fiscal/MLM/routes/2036355/middle-mile/facilities/MXXEM1/details");
             //var client = new RestClient("https://api.mercadolibre.com/routes/2259547528693863/carta-porte-details");
             //var client = new RestClient("https://api.mercadolibre.com/classified_locations/countries/" + "UY");
             var request = new RestRequest(Method.GET);
@@ -136,6 +137,10 @@ namespace ApiCpMercadoLibre
                     foreach (var ccitem in elementos)
                     {
                         string cate = ccitem.category;
+                        if (cate == "1010101")
+                        {
+                            cate = "01010101";
+                        }
                         string descript = ccitem.description;
                         string unitcode = ccitem.unit_code;
                         string quanti = ccitem.quantity;
